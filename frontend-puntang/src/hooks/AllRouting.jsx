@@ -1,0 +1,38 @@
+import { Routes, Route } from "react-router-dom";
+import AboutPage from "../pages/User/AboutPage";
+import HomePage from "./../pages/User/HomePage";
+import ListWisataPage from "../pages/User/ListWisataPage";
+import Dashboard from "./../pages/admin/Dashboard";
+import Navbar from "../pages/admin/Navbar";
+import AboutA from "../pages/admin/AboutA";
+import SidebarA from "../pages/admin/SidebarA";
+import FormAboutA from "./../pages/admin/FormAboutA";
+import DestinationA from "./../pages/admin/DestinationA";
+import FormDestinationA from "./../pages/admin/FormDestinationA";
+import DetailWisataPage from "./../pages/User/DetailWisataPage";
+import LoginA from "../pages/admin/loginA";
+import ReviewUserA from "../pages/admin/ReviewUserA"; // ✅ tambahkan ini
+
+const AllRouting = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/destination" element={<ListWisataPage />} />
+      <Route path="/detail-destination/:id" element={<DetailWisataPage />} />
+
+      {/* 🔐 Admin */}
+      <Route path="/loginA" element={<LoginA />} />
+      <Route path="/dashboardA" element={<Dashboard />} />
+      <Route path="/navbarA" element={<Navbar />} />
+      <Route path="/sidebarA" element={<SidebarA />} />
+      <Route path="/aboutA" element={<AboutA />} />
+      <Route path="/destinationA" element={<DestinationA />} />
+      <Route path="/formAbout" element={<FormAboutA />} />
+      <Route path="/formDestination" element={<FormDestinationA />} />
+      <Route path="/reviewA" element={<ReviewUserA />} /> {/* ✅ route baru */}
+    </Routes>
+  );
+};
+
+export default AllRouting;

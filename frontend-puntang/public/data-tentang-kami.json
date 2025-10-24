@@ -1,0 +1,30 @@
+{
+  "nama": "Gunung Puntang",
+  "lokasi": "Mekarjaya, Kec. Banjaran, Kabupaten Bandung, Jawa Barat",
+  "gambarList": [
+    "/gambar/Dummy1.png",
+    "/gambar/Dummy2.png",
+    "/gambar/Dummy3.png",
+    "/gambar/Dummy4.png"
+  ],
+  "deskripsi": "Destinasi wisata alam terbaik untuk menjelajahi jejak kolonialisme di antara kemegahan alam dengan hawa dan udara terasa sangat sejuk. Terletak di kaki Gunung Puntang, Kecamatan Cimaung, Kabupaten Bandung. Kegiatan yang biasa dilakukan adalah susur sungai, mountain bike, berfoto, merendam kaki, pendakian ke Puncak Mega yang merupakan puncak tertinggi dari Gunung Puntang. Kawasan wisata ini juga memiliki nilai historik yang sangat kental karena dapat ditemukan puing-puing bersejarah bekas gedung megah pemancar radio terbesar di Asia Tenggara. Pada masanya bangunan ini digunakan pemerintah Hindia Belanda untuk berkomunikasi ke Negeri Kincir Angin. Jejak kolonial lain yang bisa di-explore adalah Goa Belanda.",
+  "jam_operasional": "08:00 - 16:00 WIB",
+  "harga": "Rp 25.000/orang",
+  "fasilitas": "Area parkir, toilet, mushola, warung makan",
+  "reviews": [
+    {
+      "nama": "Bima Septian",
+      "rating": 5,
+      "komentar": "Tempatnya asri banget, cocok untuk healing dan foto-foto!"
+    },
+    {
+      "nama": "Sinta Lestari",
+      "rating": 4,
+      "komentar": "Pemandangan sangat indah, sayang jalan menuju lokasi agak rusak."
+    }
+  ],
+  "referensi": [
+    "https://id.wikipedia.org/wiki/Stasiun_Radio_Malabar",
+    "https://id.wikipedia.org/wiki/Stasiun_Radio_Malabar"
+  ]
+}
