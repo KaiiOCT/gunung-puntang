@@ -73,7 +73,7 @@ const Navbar = () => {
                 >
                   Destinasi
                 </NavLink>
-                <a className="text-lg" href="http://localhost/peta-digital-puntang-main/">
+                <a className="text-lg" href="http://127.0.0.1:8000/">
                   Peta Digital
                 </a>
               </nav>

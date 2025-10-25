@@ -20,7 +20,7 @@ const AddDestinationA = () => {
   });
 
   // === State untuk gambar (array) ===
-  const [image, setImages] = useState([null, null, null, null, null]);
+  const [image, setImages] = useState([null, null, null, null]);
 
   // === Handle perubahan input teks ===
   const handleChange = (e) => {

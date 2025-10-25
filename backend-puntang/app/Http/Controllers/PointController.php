@@ -28,7 +28,7 @@ class PointController extends Controller
 
     public function show($id)
     {
-        $point = Point::with('reviews.user')->find($id);
+        $point = Point::with('reviews')->find($id);
         if (!$point) {
             return response()->json([
                 'success' => false,

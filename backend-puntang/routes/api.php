@@ -21,11 +21,11 @@ Route::prefix('points')->group(function () {
 Route::prefix('reviews')->group(function () {
     Route::get('/', [ReviewsController::class, 'allReviews']);   
     Route::get('/count', [ReviewsController::class, 'countReviews']);
-    Route::get('/get/{id}', [ReviewsController::class, 'index']);
     Route::get('/avg-rating/{pointId}', [ReviewsController::class, 'avgRating']);
     Route::get('/avg-all-ratings', [ReviewsController::class, 'avgAllRatings']);
     Route::get('/trend', [ReviewsController::class, 'ratingTrend']);
     Route::get('/top-visitors', [ReviewsController::class, 'topVisitors']);
     Route::post('/store', [ReviewsController::class, 'store']);
+    Route::get('/get/{id}', [ReviewsController::class, 'index']);
     Route::delete('/delete/{id}', [ReviewsController::class, 'destroy']);
 });

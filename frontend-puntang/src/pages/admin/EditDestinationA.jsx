@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const EditDestinationA = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Ambil ID dari URL
+  const { id } = useParams();
 
   // === State Form ===
   const [formData, setFormData] = useState({
@@ -20,17 +20,17 @@ const EditDestinationA = () => {
     description: "",
   });
 
-  // === State untuk gambar ===
+  // === State gambar ===
   const [image, setImages] = useState([null, null, null, null, null]);
-  const [existingImages, setExistingImages] = useState([]); // Gambar lama dari server
+  const [existingImages, setExistingImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // === Fetch data berdasarkan ID ===
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/points/${id}`);
+        const res = await axios.get(`http://127.0.0.1:8000/api/points/show/${id}`);
         const data = res.data.data;
+
         setFormData({
           name: data.name,
           lat: data.lat,
@@ -39,7 +39,6 @@ const EditDestinationA = () => {
           description: data.description || "",
         });
 
-        // Jika ada gambar lama
         if (data.image) {
           const parsedImages = JSON.parse(data.image);
           setExistingImages(parsedImages);
@@ -56,15 +55,10 @@ const EditDestinationA = () => {
     fetchData();
   }, [id, navigate]);
 
-  // === Handle input teks ===
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // === Handle input gambar baru ===
   const handleFileChange = (e, index) => {
     const file = e.target.files[0];
     if (file) {
@@ -74,7 +68,6 @@ const EditDestinationA = () => {
     }
   };
 
-  // === Submit ke API update ===
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -86,11 +79,8 @@ const EditDestinationA = () => {
       data.append("address", formData.address);
       data.append("description", formData.description);
 
-      // Kirim hanya file yang benar-benar baru
       image.forEach((img, index) => {
-        if (img) {
-          data.append(`image[${index}]`, img); // penting: kirim indexnya
-        }
+        if (img) data.append(`image[${index}]`, img);
       });
 
       const res = await axios.post(
@@ -148,13 +138,12 @@ const EditDestinationA = () => {
           </nav>
         </div>
 
-        <div className="p-4 text-sm text-center opacity-80">
-          © 2025 Gunung Puntang
-        </div>
+        <div className="p-4 text-sm text-center opacity-80">© 2025 Gunung Puntang</div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
+        {/* Header */}
         <header className="flex justify-between items-center bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 shadow">
           <h2 className="text-xl font-semibold">Edit Data Destinasi</h2>
           <a
@@ -165,13 +154,14 @@ const EditDestinationA = () => {
           </a>
         </header>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="px-12 py-8">
           <h1 className="text-2xl font-semibold text-green-800 mb-8">
             Perbarui Data Destinasi
           </h1>
 
           <div className="grid grid-cols-[1.4fr_1fr] gap-10">
-            {/* === INPUT KIRI === */}
+            {/* INPUT KIRI */}
             <div>
               {["name", "address", "lat", "lon"].map((field) => (
                 <div key={field} className="mt-5 first:mt-0">
@@ -205,22 +195,20 @@ const EditDestinationA = () => {
               </div>
             </div>
 
-            {/* === INPUT FOTO === */}
+            {/* INPUT FOTO */}
             <div>
               <h1 className="text-sm font-medium mb-2">Foto Lokasi</h1>
-              <div className="grid grid-cols-3 gap-4">
-                {Array.from({ length: 5 }).map((_, i) => {
-                  const preview =
-                    image[i] !== null
-                      ? URL.createObjectURL(image[i])
-                      : existingImages[i]
-                      ? `http://127.0.0.1:8000/storage/${existingImages[i]}`
-                      : null;
+              <div className="grid grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => {
+                  let preview = null;
+                  if (image[i] instanceof File) preview = URL.createObjectURL(image[i]);
+                  else if (existingImages[i])
+                    preview = `http://127.0.0.1:8000/storage/${existingImages[i]}`;
 
                   return (
                     <label
                       key={i}
-                      className="bg-[#D9D9D9] w-28 h-28 rounded-lg flex items-center justify-center hover:bg-gray-300 transition cursor-pointer relative overflow-hidden"
+                      className="bg-[#D9D9D9] w-32 h-32 rounded-lg flex items-center justify-center hover:bg-gray-300 transition cursor-pointer relative overflow-hidden"
                     >
                       {preview ? (
                         <img
@@ -229,7 +217,7 @@ const EditDestinationA = () => {
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
-                        <FaPlus size={28} className="text-gray-700" />
+                        <FaPlus size={35} className="text-gray-700" />
                       )}
 
                       <input

@@ -184,7 +184,7 @@ const ReviewUserA = () => {
 
                     {/* Username reviewer */}
                     <h3 className="font-semibold text-gray-800">
-                      {review.user?.username || "Tidak Diketahui"}
+                      {review.name || "Tidak Diketahui"}
                     </h3>
 
                     {/* Rating */}

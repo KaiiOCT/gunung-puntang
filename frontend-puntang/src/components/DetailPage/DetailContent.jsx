@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
+import axios from "axios";
 
 const DetailContent = () => {
   const { id } = useParams();
-  const [data, setData] = useState(null);
+  const [point, setPoint] = useState(null);
   const [gambarUtama, setGambarUtama] = useState("");
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({
@@ -13,25 +14,22 @@ const DetailContent = () => {
     rating: 5,
   });
 
-  // === Ambil data destinasi ===
+  // Ambil data point + review
   const fetchData = async () => {
     try {
-      const response = await fetch("/data-puntang.json");
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const res = await axios.get(`http://127.0.0.1:8000/api/points/show/${id}`);
+      const data = res.data.data;
 
-      const datas = await response.json();
-      const detailItem = datas.find((item) => item.id.toString() === id);
-      if (!detailItem) throw new Error(`Data dengan ID ${id} tidak ditemukan`);
+      setPoint(data);
 
-      setData(detailItem);
-      setGambarUtama(detailItem.gambarList[0]);
+      // Ambil daftar gambar
+      const images = JSON.parse(data.image || "[]");
+      if (images.length > 0) setGambarUtama(`http://127.0.0.1:8000/storage/${images[0]}`);
 
-      // Ambil review dari localStorage
-      const saved = JSON.parse(localStorage.getItem(`reviews_${id}`)) || [];
-      setReviews(saved);
+      // Set review
+      setReviews(data.reviews || []);
     } catch (error) {
-      console.error("Error mengambil data:", error);
+      console.error("Gagal ambil data:", error);
     }
   };
 
@@ -39,119 +37,75 @@ const DetailContent = () => {
     fetchData();
   }, [id]);
 
-  // === Simpan ke localStorage setiap ada perubahan review ===
-  useEffect(() => {
-    if (reviews.length >= 0) {
-      localStorage.setItem(`reviews_${id}`, JSON.stringify(reviews));
-    }
-  }, [reviews, id]);
-
-  // === Tambah review baru ===
-  const handleSubmit = (e) => {
+  // Submit review baru
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newReview.nama.trim() || !newReview.komentar.trim()) return;
 
-    const reviewBaru = {
-      id: Date.now(),
-      destinationId: id,
-      nama: newReview.nama,
-      komentar: newReview.komentar,
-      rating: newReview.rating,
-      tanggal: new Date().toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }),
-    };
-
-    setReviews([...reviews, reviewBaru]);
-    setNewReview({ nama: "", komentar: "", rating: 5 });
+    try {
+      await axios.post(`http://127.0.0.1:8000/api/reviews`, {
+        point_id: id,
+        nama: newReview.nama,
+        comment: newReview.komentar,
+        rating: newReview.rating,
+      });
+      setNewReview({ nama: "", komentar: "", rating: 5 });
+      fetchData(); // refresh semua data
+    } catch (error) {
+      console.error("Gagal kirim review:", error);
+    }
   };
 
-  if (!data) return <p>Loading...</p>;
+  if (!point) return <p className="text-center py-20">Loading...</p>;
 
-  // Ambil 2 review rating tertinggi
-  const topReviews = [...reviews].sort((a, b) => b.rating - a.rating).slice(0, 2);
+  // Daftar gambar lengkap
+  const gambarList = point.image
+    ? JSON.parse(point.image).map((img) => `http://127.0.0.1:8000/storage/${img}`)
+    : [];
 
   return (
     <div id="detail" className="max-w-5xl mx-auto px-6 md:px-14 py-24">
       {/* ===== Nama & Lokasi ===== */}
-      <h2 className="text-2xl font-bold mb-4">{data.nama}</h2>
-      <p className="text-sm text-gray-600 mb-6">📍{data.lokasi}</p>
+      <h2 className="text-2xl font-bold mb-4">{point.name}</h2>
+      {point.address && (
+        <p className="text-sm text-gray-600 mb-6">📍{point.address}</p>
+      )}
 
-      {/* ===== Gambar Utama & Thumbnail ===== */}
-      <div className="flex flex-col items-center gap-4">
+      {/* ===== Card Gambar Utama & Thumbnail ===== */}
+      <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg p-4 mx-auto flex flex-col items-center gap-4">
+        {/* Gambar Utama */}
         <img
-          src={gambarUtama}
+          src={gambarUtama || gambarList[0] || ""}
           alt="Gambar Utama"
-          className="w-full max-w-3xl h-[200px] sm:h-[300px] md:h-[400px] object-cover rounded-xl shadow-lg"
+          className="w-full h-[200px] sm:h-[300px] md:h-[400px] object-cover rounded-xl shadow-md"
         />
-        <div className="flex flex-wrap gap-4 justify-center w-full max-w-3xl">
-          {data.gambarList.map((src, index) => (
-            <img
-              key={index}
-              src={src}
-              onClick={() => setGambarUtama(src)}
-              alt={`thumb-${index}`}
-              className={`w-32 h-20 sm:w-40 sm:h-24 object-cover rounded-xl cursor-pointer border-2 ${
-                gambarUtama === src
-                  ? "border-orange-500 border-4"
-                  : "border-transparent hover:border-gray-400"
-              }`}
-            />
-          ))}
-        </div>
-      </div>
 
-      {/* ===== Deskripsi ===== */}
-      <div className="mt-14">
-        <h3 className="text-lg font-semibold mb-2">Deskripsi</h3>
-        <p className="text-gray-800 text-sm leading-relaxed text-justify">
-          {data.deskripsi}
-        </p>
-
-        <h3 className="text-lg font-semibold mt-10 mb-2">Informasi tambahan</h3>
-        <div className="flex flex-col gap-4 text-sm text-gray-700">
-          <p>{data.jam_operasional}</p>
-          <p>{data.harga}</p>
-        </div>
-
-        <h3 className="text-lg font-semibold mt-10 mb-2">Sumber referensi</h3>
-        <ul className="list-disc list-inside text-blue-600 text-sm space-y-1">
-          {data.referensi.map((link, i) => (
-            <li key={i}>
-              <a href={link} target="_blank" rel="noreferrer">
-                {new URL(link).hostname}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ===== Top Review ===== */}
-      <div className="mt-14">
-        <h3 className="text-lg font-semibold mb-4">Top Reviews</h3>
-        {topReviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">Belum ada ulasan.</p>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {topReviews.map((r) => (
-              <div
-                key={r.id}
-                className="p-5 bg-white rounded-xl shadow-md border text-center"
-              >
-                <p className="font-semibold text-orange-600">{r.nama}</p>
-                <div className="flex justify-center text-yellow-400 mb-1">
-                  {[...Array(r.rating)].map((_, j) => (
-                    <FaStar key={j} />
-                  ))}
-                </div>
-                <p className="text-sm text-gray-700 italic">“{r.komentar}”</p>
-                <p className="text-xs text-gray-400 mt-1">{r.tanggal}</p>
-              </div>
+        {/* Thumbnail */}
+        {gambarList.length > 1 && (
+          <div className="flex flex-wrap gap-4 justify-center w-full">
+            {gambarList.slice(1, 5).map((src, index) => (
+              <img
+                key={index}
+                src={src}
+                onClick={() => setGambarUtama(src)}
+                alt={`thumb-${index + 1}`}
+                className={`w-32 h-20 sm:w-40 sm:h-24 object-cover rounded-xl cursor-pointer border-2 ${
+                  gambarUtama === src
+                    ? "border-orange-500 border-4"
+                    : "border-transparent hover:border-gray-400"
+                }`}
+              />
             ))}
           </div>
         )}
+      </div>
+
+      {/* ===== Deskripsi ===== */}
+      <div className="mt-10">
+        <h3 className="text-lg font-semibold mb-2">Deskripsi</h3>
+        <p className="text-white text-sm leading-relaxed text-justify">
+          {point.description}
+        </p>
       </div>
 
       {/* ===== Form Review ===== */}
@@ -184,13 +138,11 @@ const DetailContent = () => {
             {[1, 2, 3, 4, 5].map((r) => (
               <FaStar
                 key={r}
-                onClick={() =>
-                  setNewReview({ ...newReview, rating: r })
-                }
-                className={`cursor-pointer ${
+                onClick={() => setNewReview({ ...newReview, rating: r })}
+                className={`cursor-pointer text-lg transition ${
                   newReview.rating >= r
                     ? "text-yellow-400"
-                    : "text-gray-300"
+                    : "text-gray-300 hover:text-yellow-300"
                 }`}
               />
             ))}
@@ -214,18 +166,17 @@ const DetailContent = () => {
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition"
+                className="p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition text-sm"
               >
-                <p className="text-sm font-semibold text-orange-600">
-                  {review.nama}
+                <p className="font-semibold text-orange-600 mb-1">
+                  {review.name ?? "Tidak Diketahui"}
                 </p>
-                <p className="text-xs text-gray-500 mb-1">
-                  {review.rating} ⭐
-                </p>
-                <p className="text-sm text-gray-700">{review.komentar}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {review.tanggal}
-                </p>
+                <div className="flex items-center gap-1 mb-1">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <FaStar key={i} className="text-yellow-400 text-xs" />
+                  ))}
+                </div>
+                <p className="text-gray-700">{review.comment}</p>
               </div>
             ))}
           </div>

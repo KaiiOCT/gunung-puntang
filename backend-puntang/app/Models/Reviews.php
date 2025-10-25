@@ -8,6 +8,7 @@ class Reviews extends Model
 {
     protected $table = 'reviews';
     protected $fillable = [
+        'name',
         'comment',
         'rating',
         'point_id',
@@ -18,9 +19,5 @@ class Reviews extends Model
     public function point()
     {
         return $this->belongsTo(Point::class, 'point_id');
-    }
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 }

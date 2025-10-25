@@ -13,7 +13,7 @@ const DashboardA = () => {
   const [totalReview, setTotalReview] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
   const [ratingTrend, setRatingTrend] = useState([]);
-  const [popularDestinations, setPopularDestinations] = useState([]); // ✅ baru
+  const [popularDestinations, setPopularDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const DashboardA = () => {
           fetch("http://127.0.0.1:8000/api/reviews/count"),
           fetch("http://127.0.0.1:8000/api/reviews/avg-all-ratings"),
           fetch("http://127.0.0.1:8000/api/reviews/trend"),
-          fetch("http://127.0.0.1:8000/api/reviews/top-visitors") // ✅ ambil data top visitors
+          fetch("http://127.0.0.1:8000/api/reviews/top-visitors")
         ]);
 
         const destinasiData = await destinasiRes.json();
@@ -158,7 +158,7 @@ const DashboardA = () => {
                 <BarChart layout="vertical" data={popularDestinations}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} />=
                   <Tooltip />
                   <Bar dataKey="value" fill="#f97316" />
                 </BarChart>

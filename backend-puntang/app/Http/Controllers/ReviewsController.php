@@ -10,7 +10,7 @@ class ReviewsController extends Controller
 {
     public function index($id)
     {
-        $reviews = Reviews::with(['user', 'point'])
+        $reviews = Reviews::with(['point'])
             ->where('point_id', $id)
             ->orderBy('rating', 'desc')
             ->get();
@@ -26,9 +26,9 @@ class ReviewsController extends Controller
         $pointId = $request->input('point_id');
 
         if ($pointId) {
-            $reviews = Reviews::with(['user', 'point'])->where('point_id', $pointId)->orderBy('rating', 'DESC')->get();
+            $reviews = Reviews::with(['point'])->where('point_id', $pointId)->orderBy('rating', 'DESC')->get();
         } else {
-            $reviews = Reviews::with(['user', 'point'])->orderBy('rating', 'DESC')->get();
+            $reviews = Reviews::with(['point'])->orderBy('rating', 'DESC')->get();
         }
 
         return response()->json([
