@@ -12,6 +12,7 @@ Route::get('/user', function (Request $request) {
 Route::prefix('points')->group(function () {
     Route::get('/', [PointController::class, 'index']);
     Route::get('/{id}', [PointController::class, 'show']);
+    Route::get('/for-filter', [PointController::class, 'forFilter']);
     Route::post('/store', [PointController::class, 'store']);
     Route::post('/update/{id}', [PointController::class, 'update']);
     Route::delete('/delete/{id}', [PointController::class, 'destroy']);

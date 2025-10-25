@@ -3,21 +3,26 @@ import { IoMdArrowBack } from "react-icons/io";
 import { MdLocationOn } from "react-icons/md";
 import { FaHome, FaUserAlt, FaMountain } from "react-icons/fa";
 import { BsChatDotsFill } from "react-icons/bs";
-import Dummy2 from "../../assets/gunung 1.png";
 import axios from "axios";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
+import { Link } from "react-router-dom";
 
 const DestinationA = () => {
+  const { mutate } = useSWRConfig();
   const fetcher = async () => {
     const response = await axios.get("http://localhost:8000/api/points");
     return response.data.data;
-  };  
+  };
 
   const { data } = useSWR("points", fetcher);
   if (!data) {
     return <h2>Loading...</h2>;
   }
 
+  const deletePoint = async (pointsId) => {
+    await axios.delete(`http://localhost:8000/api/points/delete/${pointsId}`);
+    mutate("points");
+  };
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -56,7 +61,9 @@ const DestinationA = () => {
           </nav>
         </div>
 
-        <div className="p-4 text-sm text-center opacity-80">© 2025 Gunung Puntang</div>
+        <div className="p-4 text-sm text-center opacity-80">
+          © 2025 Gunung Puntang
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -85,34 +92,40 @@ const DestinationA = () => {
 
           {/* Card Data */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           { data.map((points)=>(
+            {data.map((points) => (
               <div className="bg-white p-5 rounded-xl shadow border border-green-200">
                 <div className="flex gap-4">
                   <div className="flex-1 space-y-1">
                     <h1 className="font-semibold text-green-800 text-lg">
                       {points.name}
                     </h1>
-                    <h3 className="text-gray-500 text-sm">
-                      {points.address}
-                    </h3>
+                    <h3 className="text-gray-500 text-sm">{points.address}</h3>
                     <p className="text-sm text-gray-700 font-light line-clamp-4">
                       {points.description}
                     </p>
                   </div>
                   <img
-                    src={`http://127.0.0.1:8000/storage/${points.image}`}
+                    src={`http://127.0.0.1:8000/storage/${
+                      JSON.parse(points.image)[0]
+                    }`}
                     alt="Destinasi"
                     className="w-[168px] h-[134px] object-cover rounded-lg"
                   />
                 </div>
 
                 <div className="mt-5 flex gap-4 justify-center">
-                  <button className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white w-24 py-2 rounded-full text-sm font-medium transition">
+                  <button
+                    onClick={() => deletePoint(points.id)}
+                    className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white w-24 py-2 rounded-full text-sm font-medium transition"
+                  >
                     Hapus
                   </button>
-                  <button className="border border-green-700 text-green-700 hover:bg-green-700 hover:text-white w-24 py-2 rounded-full text-sm font-medium transition">
+                  <Link
+                    to={`/editDestination/${points.id}`}
+                    className="border border-green-700 text-green-700 hover:bg-green-700 hover:text-white w-24 py-2 rounded-full text-sm font-medium transition text-center flex items-center justify-center"
+                  >
                     Edit
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

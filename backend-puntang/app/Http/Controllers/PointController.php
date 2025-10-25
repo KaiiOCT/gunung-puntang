@@ -32,6 +32,14 @@ class PointController extends Controller
         ]);
     }
 
+    public function forFilter() {
+        $points = Point::all(['id', 'name']); // ambil id & name saja
+        return response()->json([
+            'success' => true,
+            'data' => $points
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -39,15 +47,18 @@ class PointController extends Controller
             'lat' => 'required|numeric',
             'lon' => 'required|numeric',
             'address' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'description' => 'nullable|string',
         ]);
 
         $imagePath = null;
 
         if ($request->file('image')) {
-            $imagePath = $request->file('image')->getClientOriginalName();
-            $request->file('image')->storeAs('', $imagePath, 'public');
+            foreach ($request->file('image') as $image) {
+                $imageName = $image->getClientOriginalName();
+                $image->storeAs('', $imageName, 'public');
+                $imagePath[] = $imageName;
+            }
         }
 
         $point = Point::create([
@@ -55,7 +66,7 @@ class PointController extends Controller
             'lat' => $request->lat,
             'lon' => $request->lon,
             'address' => $request->address,
-            'image' => $imagePath ?? null,
+            'image' => json_encode($imagePath),
             'description' => $request->description,
         ]);
 
@@ -80,38 +91,49 @@ class PointController extends Controller
             'lat' => 'required|numeric',
             'lon' => 'required|numeric',
             'address' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'description' => 'nullable|string',
         ]);
 
-        $imagePath = $point->image;
+        $oldImages = json_decode($point->image, true) ?? [];
+        $newImages = $oldImages; // default: pertahankan gambar lama
 
+        // Jika ada file baru dikirim
         if ($request->hasFile('image')) {
-            if ($point->image && Storage::disk('public')->exists($point->image)) {
-                Storage::disk('public')->delete($point->image);
+            foreach ($request->file('image') as $index => $file) {
+                if ($file) {
+                    // Jika ada gambar lama di index ini, hapus
+                    if (isset($oldImages[$index]) && Storage::disk('public')->exists($oldImages[$index])) {
+                        Storage::disk('public')->delete($oldImages[$index]);
+                    }
+        
+                    // Simpan file baru dengan nama aslinya
+                    $imageName = $file->getClientOriginalName();
+                    $file->storeAs('', $imageName, 'public');
+        
+                    // Ganti posisi gambar lama di index tersebut dengan yang baru
+                    $newImages[$index] = $imageName;
+                }
             }
-
-            $imageName = $request->file('image')->getClientOriginalName();
-
-            $request->file('image')->storeAs('', $imageName, 'public');
-
-            $imagePath = $imageName;
         }
+        
 
         $point->update([
             'name' => $request->name,
             'lat' => $request->lat,
             'lon' => $request->lon,
             'address' => $request->address,
-            'image' => $imagePath,
+            'image' => json_encode($newImages),
             'description' => $request->description,
         ]);
 
         return response()->json([
             'success' => true,
+            'message' => 'Point updated successfully!',
             'data' => $point
         ]);
     }
+
 
 
     public function destroy($id)
@@ -125,7 +147,15 @@ class PointController extends Controller
         }
 
         if ($point->image) {
-            Storage::disk('public')->delete($point->image);
+            $images = json_decode($point->image, true);
+
+            if (is_array($images)) {
+                foreach ($images as $img) {
+                    Storage::disk('public')->delete($img);
+                }
+            } else {
+                Storage::disk('public')->delete($point->image);
+            }
         }
 
         $point->delete();

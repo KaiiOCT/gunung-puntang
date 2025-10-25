@@ -17,7 +17,7 @@ return new class extends Migration
             $table->float('lat')->nullable();
             $table->float('lon')->nullable();
             $table->string('address')->nullable();
-            $table->text('image')->nullable();
+            $table->json('image')->nullable();
             $table->text('description')->nullable();
         });
     }

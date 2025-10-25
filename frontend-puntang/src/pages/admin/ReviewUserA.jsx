@@ -27,7 +27,6 @@ const ReviewUserA = () => {
   useEffect(() => {
     const storedReviews = getAllReviews();
     setReviews(storedReviews);
-    setSelectedDestinasi(destinasiList); // default tampil semua
   }, []);
 
   const toggleFilter = () => setFilterOpen(!filterOpen);

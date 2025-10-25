@@ -8,10 +8,11 @@ import AboutA from "../pages/admin/AboutA";
 import SidebarA from "../pages/admin/SidebarA";
 import FormAboutA from "./../pages/admin/FormAboutA";
 import DestinationA from "./../pages/admin/DestinationA";
-import FormDestinationA from "./../pages/admin/FormDestinationA";
+import AddDestination from "../pages/admin/AddDestinationA";
 import DetailWisataPage from "./../pages/User/DetailWisataPage";
 import LoginA from "../pages/admin/loginA";
 import ReviewUserA from "../pages/admin/ReviewUserA"; // ✅ tambahkan ini
+import EditDestinationA from "../pages/admin/EditDestinationA";
 
 const AllRouting = () => {
   return (
@@ -29,7 +30,8 @@ const AllRouting = () => {
       <Route path="/aboutA" element={<AboutA />} />
       <Route path="/destinationA" element={<DestinationA />} />
       <Route path="/formAbout" element={<FormAboutA />} />
-      <Route path="/formDestination" element={<FormDestinationA />} />
+      <Route path="/formDestination" element={<AddDestination />} />
+      <Route path="/editDestination/:id" element={<EditDestinationA />} />
       <Route path="/reviewA" element={<ReviewUserA />} /> {/* ✅ route baru */}
     </Routes>
   );

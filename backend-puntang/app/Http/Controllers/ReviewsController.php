@@ -20,14 +20,22 @@ class ReviewsController extends Controller
         ]);
     }
 
-    public function allReviews()
+    public function allReviews(Request $request)
     {
-        $reviews = Reviews::all();
+        $pointId = $request->input('point_id');
+
+        if ($pointId) {
+            $reviews = Reviews::where('point_id', $pointId)->get();
+        } else {
+            $reviews = Reviews::all();
+        }
+
         return response()->json([
             'success' => true,
             'data' => $reviews
         ]);
     }
+
 
     public function store(Request $request)
     {
