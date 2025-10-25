@@ -13,7 +13,7 @@ class Reviews extends Model
         'point_id',
         'user_id'
     ];
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function point()
     {

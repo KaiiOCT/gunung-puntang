@@ -17,6 +17,7 @@ return new class extends Migration
             $table->float('rating');
             $table->unsignedBigInteger('point_id');
             $table->unsignedBigInteger('user_id');
+            $table->timestamps();
         });
     }
 

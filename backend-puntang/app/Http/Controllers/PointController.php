@@ -17,6 +17,15 @@ class PointController extends Controller
         ]);
     }
 
+    public function countPoints()
+    {
+        $count = Point::count();
+        return response()->json([
+            'success' => true,
+            'data' => $count
+        ]);
+    }
+
     public function show($id)
     {
         $point = Point::with('reviews.user')->find($id);

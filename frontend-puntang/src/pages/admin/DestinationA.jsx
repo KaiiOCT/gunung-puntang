@@ -14,10 +14,7 @@ const DestinationA = () => {
     return response.data.data;
   };
 
-  const { data } = useSWR("points", fetcher);
-  if (!data) {
-    return <h2>Loading...</h2>;
-  }
+  const { data = [] } = useSWR("points", fetcher);
 
   const deletePoint = async (pointsId) => {
     await axios.delete(`http://localhost:8000/api/points/delete/${pointsId}`);
