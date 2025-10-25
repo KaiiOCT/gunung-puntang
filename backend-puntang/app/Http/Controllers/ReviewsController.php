@@ -25,9 +25,9 @@ class ReviewsController extends Controller
         $pointId = $request->input('point_id');
 
         if ($pointId) {
-            $reviews = Reviews::where('point_id', $pointId)->get();
+            $reviews = Reviews::with(['user', 'point'])->where('point_id', $pointId)->get();
         } else {
-            $reviews = Reviews::all();
+            $reviews = Reviews::with(['user', 'point'])->get();
         }
 
         return response()->json([

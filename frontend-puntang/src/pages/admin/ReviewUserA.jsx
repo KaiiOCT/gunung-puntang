@@ -1,54 +1,83 @@
 import React, { useState, useEffect } from "react";
 import { IoMdArrowBack } from "react-icons/io";
 import { MdLocationOn } from "react-icons/md";
-import { FaHome, FaUserAlt, FaMountain } from "react-icons/fa";
-import { BsChatDotsFill } from "react-icons/bs";
-import { FaFilter, FaTrashAlt, FaStar } from "react-icons/fa";
-import { getAllReviews, deleteReview } from "../../utils/localReview";
+import {
+  FaHome,
+  FaUserAlt,
+  FaMountain,
+  FaFilter,
+  FaTrashAlt,
+  FaStar,
+} from "react-icons/fa";
+import axios from "axios";
 
 const ReviewUserA = () => {
   const [reviews, setReviews] = useState([]);
+  const [destinasiList, setDestinasiList] = useState([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedDestinasi, setSelectedDestinasi] = useState([]);
 
-  const destinasiList = [
-    "Curug",
-    "Cafe Berg",
-    "Campsite",
-    "Edu Wisata Kopi",
-    "Gua Belanda",
-    "Gunung Puntang",
-    "Kopi Puntang",
-    "Owa Jawa",
-    "Sungai Cigereuh",
-  ];
-
-  // 🔹 Ambil data review dari localStorage
-  useEffect(() => {
-    const storedReviews = getAllReviews();
-    setReviews(storedReviews);
-  }, []);
-
-  const toggleFilter = () => setFilterOpen(!filterOpen);
-
-  const handleFilterChange = (dest) => {
-    if (selectedDestinasi.includes(dest)) {
-      setSelectedDestinasi(selectedDestinasi.filter((d) => d !== dest));
-    } else {
-      setSelectedDestinasi([...selectedDestinasi, dest]);
+  // 🔹 Fetch destinasi dari backend
+  const fetchDestinasi = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:8000/api/points");
+      // res.data.data = [{id, name}, ...]
+      setDestinasiList(res.data.data || []);
+    } catch (err) {
+      console.error("Gagal ambil destinasi:", err);
     }
   };
 
-  // 🔹 Filter review berdasarkan destinasi
-  const filteredData = reviews.filter((item) =>
-    selectedDestinasi.includes(item.namaDestinasi || item.destinasi || "")
-  );
+  // 🔹 Fetch review dari backend
+  const fetchReviews = async () => {
+    try {
+      let url = "http://127.0.0.1:8000/api/reviews";
 
-  // 🔹 Hapus review dari localStorage + state
-  const handleDelete = (reviewId, destinationId) => {
-    if (window.confirm("Yakin ingin menghapus review ini?")) {
-      deleteReview(destinationId, reviewId);
-      setReviews(getAllReviews());
+      if (selectedDestinasi.length > 0) {
+        const pointIds = destinasiList
+          .filter((d) => selectedDestinasi.includes(d.name))
+          .map((d) => d.id);
+        if (pointIds.length > 0) {
+          url += "?point_id[]=" + pointIds.join("&point_id[]=");
+        }
+      }
+
+      const res = await axios.get(url);
+      setReviews(res.data.data || []);
+    } catch (err) {
+      console.error("Gagal ambil review:", err);
+    }
+  };
+
+  // Fetch destinasi saat mount
+  useEffect(() => {
+    fetchDestinasi();
+  }, []);
+
+  // Fetch review saat mount dan saat filter berubah
+  useEffect(() => {
+    fetchReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDestinasi, destinasiList]);
+
+  const toggleFilter = () => setFilterOpen(!filterOpen);
+
+  const handleFilterChange = (destName) => {
+    if (selectedDestinasi.includes(destName)) {
+      setSelectedDestinasi(selectedDestinasi.filter((d) => d !== destName));
+    } else {
+      setSelectedDestinasi([...selectedDestinasi, destName]);
+    }
+  };
+
+  const handleDelete = async (reviewId) => {
+    if (!window.confirm("Yakin ingin menghapus review ini?")) return;
+
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/reviews/delete/${reviewId}`);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      console.error("Gagal menghapus review:", err);
     }
   };
 
@@ -85,7 +114,7 @@ const ReviewUserA = () => {
               href="/reviewA"
               className="flex items-center gap-3 p-2 rounded-lg bg-green-800"
             >
-              <BsChatDotsFill /> Review User
+              <FaStar /> Review User
             </a>
           </nav>
         </div>
@@ -97,7 +126,6 @@ const ReviewUserA = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="flex justify-between items-center bg-gradient-to-r from-green-600 to-green-400 text-white px-8 py-4 shadow">
           <h2 className="text-xl font-semibold">Halaman Admin</h2>
           <a
@@ -108,7 +136,6 @@ const ReviewUserA = () => {
           </a>
         </header>
 
-        {/* Konten */}
         <div className="p-8">
           <h3 className="text-2xl font-bold text-green-800 mb-2">
             Review User:
@@ -124,18 +151,18 @@ const ReviewUserA = () => {
             </button>
 
             {filterOpen && (
-              <div className="absolute z-10 bg-white shadow-lg rounded-md mt-2 w-48 border border-gray-200">
+              <div className="absolute z-10 bg-white shadow-lg rounded-md mt-2 w-48 border border-gray-200 max-h-60 overflow-y-auto">
                 {destinasiList.map((dest) => (
                   <label
-                    key={dest}
+                    key={dest.id}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
                   >
                     <input
                       type="checkbox"
-                      checked={selectedDestinasi.includes(dest)}
-                      onChange={() => handleFilterChange(dest)}
+                      checked={selectedDestinasi.includes(dest.name)}
+                      onChange={() => handleFilterChange(dest.name)}
                     />
-                    <span className="text-sm text-gray-700">{dest}</span>
+                    <span className="text-sm text-gray-700">{dest.name}</span>
                   </label>
                 ))}
               </div>
@@ -143,48 +170,59 @@ const ReviewUserA = () => {
           </div>
 
           {/* Review Cards */}
-          {filteredData.length === 0 ? (
+          {reviews.length === 0 ? (
             <p className="text-gray-500">Belum ada review dari user.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredData.map((user, i) => (
+              {reviews.map((review, i) => (
                 <div
-                  key={user.id}
+                  key={review.id}
                   className="bg-white rounded-xl shadow border border-gray-200 p-5 relative"
                 >
                   <div className="flex flex-col items-center">
                     <div className="w-16 h-16 rounded-full bg-gray-200 mb-3"></div>
-                    <h3 className="font-semibold text-gray-800">{user.nama}</h3>
+
+                    {/* Username reviewer */}
+                    <h3 className="font-semibold text-gray-800">
+                      {review.user?.username || "Tidak Diketahui"}
+                    </h3>
+
+                    {/* Rating */}
                     <div className="flex text-yellow-500 mt-1">
-                      {[...Array(user.rating)].map((_, j) => (
+                      {[...Array(review.rating)].map((_, j) => (
                         <FaStar key={j} />
                       ))}
                     </div>
+
+                    {/* Komentar */}
                     <p className="text-sm text-gray-500 mt-2 text-center line-clamp-2">
-                      "{user.komentar}"
+                      "{review.comment}"
                     </p>
                   </div>
 
                   {/* Tombol hapus */}
                   <div className="absolute top-3 right-3">
                     <button
-                      onClick={() =>
-                        handleDelete(user.id, user.destinationId)
-                      }
+                      onClick={() => handleDelete(review.id)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <FaTrashAlt />
                     </button>
                   </div>
 
+                  {/* Nama destinasi */}
                   <div
                     className="mt-4 text-center text-xs font-medium text-white px-3 py-1 rounded-full w-fit mx-auto"
                     style={{
-                      backgroundColor:
-                        ["#F9E56B", "#F7C6C7", "#F9A785", "#B7E4C7"][i % 4],
+                      backgroundColor: [
+                        "#F9E56B",
+                        "#F7C6C7",
+                        "#F9A785",
+                        "#B7E4C7",
+                      ][i % 4],
                     }}
                   >
-                    {user.namaDestinasi || user.destinasi || "Tidak Diketahui"}
+                    {review.point?.name || "Tidak Diketahui"}
                   </div>
                 </div>
               ))}

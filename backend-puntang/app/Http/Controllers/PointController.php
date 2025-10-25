@@ -32,14 +32,6 @@ class PointController extends Controller
         ]);
     }
 
-    public function forFilter() {
-        $points = Point::all(['id', 'name']); // ambil id & name saja
-        return response()->json([
-            'success' => true,
-            'data' => $points
-        ]);
-    }
-
     public function store(Request $request)
     {
         $request->validate([

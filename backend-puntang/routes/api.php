@@ -21,4 +21,6 @@ Route::prefix('points')->group(function () {
 Route::prefix('reviews')->group(function () {
     Route::get('/', [ReviewsController::class, 'allReviews']);   
     Route::get('/{id}', [ReviewsController::class, 'index']);
+    Route::post('/store', [ReviewsController::class, 'store']);
+    Route::delete('/delete/{id}', [ReviewsController::class, 'destroy']);
 });
