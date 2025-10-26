@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GunungImg from "../../assets/gunung 1.png"; // pastikan path benar
 
-const LoginA = () => {
+const RegisterA = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,34 +19,31 @@ const LoginA = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/users/login", {
+      const response = await fetch("http://127.0.0.1:8000/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          credentials: "include",
         },
         body: JSON.stringify({
           username: username,
           password: password,
+          role: "admin", // sesuai dengan validasi Laravel
         }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Simpan token / data user ke localStorage
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("user", JSON.stringify(data.data));
-
-        alert("Login berhasil!");
-        navigate("/dashboardA");
+      if (response.ok) {
+        alert("Registrasi berhasil! Silakan login.");
+        navigate("/loginA");
       } else {
-        alert(data.message || "Username atau password salah!");
+        // Jika validasi Laravel gagal
+        alert(data.message || "Registrasi gagal. Periksa input Anda.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Gagal terhubung ke server. Pastikan backend Laravel berjalan.");
+      alert("Terjadi kesalahan saat menghubungi server.");
     } finally {
       setLoading(false);
     }
@@ -62,11 +59,11 @@ const LoginA = () => {
         }}
       ></div>
 
-      {/* Right Side (Login Form) */}
+      {/* Right Side (Register Form) */}
       <div className="flex w-full md:w-1/2 justify-center items-center bg-gradient-to-br from-green-300 to-green-600">
         <div className="bg-white p-8 rounded-2xl shadow-xl w-80">
           <h2 className="text-2xl font-bold text-center mb-6 text-green-700">
-            Selamat Datang Admin!
+            Register Admin
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,15 +89,6 @@ const LoginA = () => {
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center">
-                <input type="checkbox" className="mr-2" /> Remember Me
-              </label>
-              <a href="#" className="text-green-700 hover:underline">
-                Forgot Password?
-              </a>
-            </div>
-
             <button
               type="submit"
               disabled={loading}
@@ -110,24 +98,24 @@ const LoginA = () => {
                   : "bg-green-700 hover:bg-green-800"
               }`}
             >
-              {loading ? "Memproses..." : "Sign In"}
+              {loading ? "Mendaftarkan..." : "Register"}
             </button>
-          </form>
 
-          <p className="text-sm text-center mt-3">
-            Belum punya akun?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/registerA")}
-              className="text-green-700 hover:underline"
-            >
-              Daftar di sini
-            </button>
-          </p>
+            <p className="text-sm text-center mt-3">
+              Sudah punya akun?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/loginA")}
+                className="text-green-700 hover:underline"
+              >
+                Login di sini
+              </button>
+            </p>
+          </form>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginA;
+export default RegisterA;

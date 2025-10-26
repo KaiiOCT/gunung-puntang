@@ -13,6 +13,7 @@ import DetailWisataPage from "./../pages/User/DetailWisataPage";
 import LoginA from "../pages/admin/loginA";
 import ReviewUserA from "../pages/admin/ReviewUserA"; // ✅ tambahkan ini
 import EditDestinationA from "../pages/admin/EditDestinationA";
+import RegisterA from "../pages/admin/RegisterA";
 
 const AllRouting = () => {
   return (
@@ -24,6 +25,7 @@ const AllRouting = () => {
 
       {/* 🔐 Admin */}
       <Route path="/loginA" element={<LoginA />} />
+      <Route path="/registerA" element={<RegisterA />} />
       <Route path="/dashboardA" element={<Dashboard />} />
       <Route path="/navbarA" element={<Navbar />} />
       <Route path="/sidebarA" element={<SidebarA />} />

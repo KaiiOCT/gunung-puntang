@@ -2,12 +2,18 @@
 
 use App\Http\Controllers\PointController;
 use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::prefix('users')->group(function () {
+    Route::post('/register', [UserController::class, 'register']);
+    Route::post('/login', [UserController::class, 'login']);
+});
 
 Route::prefix('points')->group(function () {
     Route::get('/', [PointController::class, 'index']);
