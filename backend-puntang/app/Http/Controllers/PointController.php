@@ -28,18 +28,23 @@ class PointController extends Controller
 
     public function show($id)
     {
-        $point = Point::with('reviews')->find($id);
+        $point = Point::with(['reviews' => function ($query) {
+            $query->orderBy('rating', 'desc');
+        }])->find($id);
+
         if (!$point) {
             return response()->json([
                 'success' => false,
                 'message' => 'Point not found'
             ], 404);
         }
+
         return response()->json([
             'success' => true,
             'data' => $point
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -107,17 +112,17 @@ class PointController extends Controller
                     if (isset($oldImages[$index]) && Storage::disk('public')->exists($oldImages[$index])) {
                         Storage::disk('public')->delete($oldImages[$index]);
                     }
-        
+
                     // Simpan file baru dengan nama aslinya
                     $imageName = $file->getClientOriginalName();
                     $file->storeAs('', $imageName, 'public');
-        
+
                     // Ganti posisi gambar lama di index tersebut dengan yang baru
                     $newImages[$index] = $imageName;
                 }
             }
         }
-        
+
 
         $point->update([
             'name' => $request->name,

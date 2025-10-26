@@ -114,17 +114,17 @@ class ReviewsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'name' => 'required|string',
             'comment' => 'required|string',
             'rating' => 'required|numeric|min:1|max:5',
-            'point_id' => 'required|exists:point,id',
-            'user_id' => 'required|exists:users,id',
+            'point_id' => 'required|exists:points,id',
         ]);
 
         $review = Reviews::create([
+            'name' => $request->name,
             'comment' => $request->comment,
             'rating' => $request->rating,
             'point_id' => $request->point_id,
-            'user_id' => $request->user_id,
         ]);
 
         return response()->json([

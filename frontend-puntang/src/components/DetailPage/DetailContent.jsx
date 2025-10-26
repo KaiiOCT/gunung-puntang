@@ -14,17 +14,20 @@ const DetailContent = () => {
     rating: 5,
   });
 
-  // Ambil data point + review
+  // ===== Ambil data point + review =====
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/points/show/${id}`);
+      const res = await axios.get(
+        `http://127.0.0.1:8000/api/points/show/${id}`
+      );
       const data = res.data.data;
 
       setPoint(data);
 
       // Ambil daftar gambar
       const images = JSON.parse(data.image || "[]");
-      if (images.length > 0) setGambarUtama(`http://127.0.0.1:8000/storage/${images[0]}`);
+      if (images.length > 0)
+        setGambarUtama(`http://127.0.0.1:8000/storage/${images[0]}`);
 
       // Set review
       setReviews(data.reviews || []);
@@ -37,22 +40,27 @@ const DetailContent = () => {
     fetchData();
   }, [id]);
 
-  // Submit review baru
+  // ===== Submit review baru =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newReview.nama.trim() || !newReview.komentar.trim()) return;
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/reviews`, {
+      await axios.post(`http://127.0.0.1:8000/api/reviews/store`, {
         point_id: id,
-        nama: newReview.nama,
+        name: newReview.nama,
         comment: newReview.komentar,
         rating: newReview.rating,
       });
+
+      // Reset form
       setNewReview({ nama: "", komentar: "", rating: 5 });
-      fetchData(); // refresh semua data
+
+      // Refresh data
+      fetchData();
     } catch (error) {
-      console.error("Gagal kirim review:", error);
+      console.error("Gagal kirim review:", error.response?.data || error);
+      alert("Gagal mengirim ulasan. Periksa konsol untuk detail.");
     }
   };
 
@@ -60,7 +68,9 @@ const DetailContent = () => {
 
   // Daftar gambar lengkap
   const gambarList = point.image
-    ? JSON.parse(point.image).map((img) => `http://127.0.0.1:8000/storage/${img}`)
+    ? JSON.parse(point.image).map(
+        (img) => `http://127.0.0.1:8000/storage/${img}`
+      )
     : [];
 
   return (
@@ -162,7 +172,15 @@ const DetailContent = () => {
         {reviews.length === 0 ? (
           <p className="text-gray-500 text-sm">Belum ada ulasan pengguna.</p>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div
+            className="grid md:grid-cols-2 gap-6 rounded-lg shadow-inner border border-transparent"
+            style={{
+              maxHeight: "240px", // batas tinggi maksimal
+              overflowY: "auto", // aktifkan scroll
+              scrollbarWidth: "none", // untuk Firefox
+              msOverflowStyle: "none", // untuk IE dan Edge lama
+            }}
+          >
             {reviews.map((review) => (
               <div
                 key={review.id}

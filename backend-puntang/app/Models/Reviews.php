@@ -12,7 +12,6 @@ class Reviews extends Model
         'comment',
         'rating',
         'point_id',
-        'user_id'
     ];
     public $timestamps = true;
 
