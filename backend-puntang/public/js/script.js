@@ -165,7 +165,7 @@ function showRouteTo(destLat, destLon) {
 
 function updatePointInfo(point) {
   let html = `<strong>${point.name}</strong>`;
-  if (point.image) html += `<br><img src="/storage/${point.image}" alt="${point.name}" width="300">`;
+  if (point.image) html += `<br><img src="/storage/${JSON.parse(point.image)[0]}" alt="${point.name}" width="300">`;
   if (point.description) html += `<p>${point.description}</p>`;
   pointInfoElement.innerHTML = html;
 }
